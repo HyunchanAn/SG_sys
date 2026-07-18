@@ -44,15 +44,27 @@ if [ ${#MISSING_REPOS[@]} -ne 0 ]; then
     exit 1
 fi
 
+echo "Spinning up Root Orchestration (MSA PoC) for SG_proj_001 and SG_proj_004..."
+cd "$BASE_DIR/SG_sys"
+docker-compose up -d --build
+
 for REPO in "${REPOS[@]}"; do
     echo "## $REPO" >> "$REPORT_FILE"
     echo "Running tests in $REPO..."
     
     cd "$BASE_DIR/$REPO" || continue
     
+    # Decide execution method (Docker for PoC modules, Local for others)
+    EXEC_CMD="env OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 python -m pytest"
+    if [ "$REPO" == "SG_proj_001" ]; then
+        EXEC_CMD="docker exec sg_proj_001_api pytest"
+    elif [ "$REPO" == "SG_proj_004" ]; then
+        EXEC_CMD="docker exec sg_proj_004_api pytest"
+    fi
+    
     # Check if tests directory exists
     if [ -d "tests" ]; then
-        OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 python -m pytest tests/ > "test_out.log" 2>&1
+        $EXEC_CMD tests/ > "test_out.log" 2>&1
         EXIT_CODE=$?
         
         echo '```text' >> "$REPORT_FILE"
@@ -68,7 +80,7 @@ for REPO in "${REPOS[@]}"; do
         # Find any test_*.py files in the root or depth 1
         TEST_FILES=$(find . -maxdepth 2 -name "test_*.py")
         if [ -n "$TEST_FILES" ]; then
-            OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 python -m pytest $TEST_FILES > "test_out.log" 2>&1
+            $EXEC_CMD $TEST_FILES > "test_out.log" 2>&1
             EXIT_CODE=$?
             
             echo '```text' >> "$REPORT_FILE"

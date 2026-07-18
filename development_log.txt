@@ -17,3 +17,12 @@
   - **난수 시드 고정**: `SG_proj_001/api/main.py` 최상단에 글로벌 난수 고정 함수(`set_global_seed(42)`)를 주입하여 `random`, `numpy`, `torch` 기반 모델의 결정론적(Deterministic) 학습 및 추론 보장.
   - **멀티스레딩 스로틀링 해제**: `run_all_tests.sh` 스크립트 상단에 전역으로 걸려있던 멀티스레딩 억제 변수(`OMP_NUM_THREADS=1` 등)를 제거하고, 오직 `pytest` 실행 라인에만 격리 적용되도록 수정. 프로덕션 환경의 고성능 멀티코어 리소스 병목을 원천 해소.
   - **통합 검증**: `run_all_tests.sh` 기반 전체 시스템 E2E 테스트 통과 확인 후, `push_all.sh`를 통해 19개 모듈 일괄 원격 동기화 완수.
+
+- **마이크로서비스(MSA) 런타임 분리 및 오케스트레이션 설계 (architecture_refactoring_proposal 조치 진행중)**
+  - 모듈 간 직접 코드 공유(`PYTHONPATH`, `sys.path`)를 지양하고 REST API(httpx 기반 비동기 통신)로 연동하는 PoC 진행 확정.
+  - 초기 내부 컨테이너 브릿지망 통신 시에는 신뢰 네트워크(Trusted Network)로 간주하여 인증 없이 구현하되, **추후 별도의 API Key 인증(Auth) 방식으로 전환할 수 있도록 구조적 확장성을 열어둠 (향후 과제 기록)**.
+[2026-07-19] 보안 및 VRAM 이슈(untracked vulnerabilities) 해결
+- (코드 파편화 제거) SG_integration_step2, step3 내부의 SG_proj_004 등 중복 모듈 소스 완전 삭제.
+- (인증 중앙화) SG_sys/.env에 OPENAI_API_KEY 등 통합 저장 및 docker-compose를 통한 환경 변수 주입 구조 마련.
+- (OOM 방지) 002, 003, 007 모듈의 API 엔드포인트 응답 후 GC 호출 및 VRAM 해제 로직 구현.
+  * torch.cuda.empty_cache()와 torch.mps.empty_cache() 동시 지원으로 크로스 플랫폼 최적화 적용.
