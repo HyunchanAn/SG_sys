@@ -1,0 +1,19 @@
+# SG_sys 통합 개발 일지 및 주요 아키텍처/보안 개선 내역
+
+## [2026-07-18]
+- **데이터베이스 분리 및 이식성 확보 (db_separation_review_proposal 조치)**
+  - `lab_synthesis.db`, `lab_coating.db` 파일들을 `SG_DB/lab_databases/`로 물리적 분리.
+  - `SG_proj_004` 모듈 내 윈도우 OS 하드코딩된 절대경로(E:\Github\...)를 제거하고 `Pathlib`을 활용한 크로스 플랫폼 상대경로로 전면 리팩토링.
+  - Docker 컨테이너의 마스터 볼륨 마운트를 `../SG_DB/postgres_data`로 복원하여 분산 DB 시스템 정상화 완료.
+- **Git 히스토리 평문 자격증명 영구 소거 (git_history_security_review_proposal 조치)**
+  - `SG_proj_004` 모듈 Git 히스토리 전체 스캔 및 평문 크리덴셜(`sg_password`) 식별.
+  - `git-filter-repo`를 활용해 과거 히스토리에서 해당 키워드를 `***REMOVED***`로 마스킹/영구 소거 처리 완료.
+  - 원격 저장소에 `git push --force`로 적용하여 보안 위험 원천 봉쇄.
+  - 로컬 환경에서는 `.env`를 통한 환경 변수 주입으로 인증 체계 일원화 및 보안성 강화.
+- **데이터 자산 일원화 및 전역 보안 룰 확립 (architecture_security_improvement_proposal 조치)**
+  - 파편화되어 있던 `SG_proj_001/raw_data/` 내의 엑셀 데이터 파일들을 `SG_DB/raw_data/`로 통합 이관(Migration)하고 001 모듈에서는 `git rm` 처리 후 삭제하여 SSOT(Single Source of Truth) 원칙 확립.
+  - 전역 스크립트(`update_gitignores.py`)를 개발하여 19개(`SG_proj_*` 등) 모든 레포지토리의 `.gitignore` 최하단에 `raw_data/`, `*.db`, `.env` 항목 일괄 주입.
+- **시스템 안정성 및 재현성 강화 (stability_reproducibility_improvement_proposal 조치)**
+  - **난수 시드 고정**: `SG_proj_001/api/main.py` 최상단에 글로벌 난수 고정 함수(`set_global_seed(42)`)를 주입하여 `random`, `numpy`, `torch` 기반 모델의 결정론적(Deterministic) 학습 및 추론 보장.
+  - **멀티스레딩 스로틀링 해제**: `run_all_tests.sh` 스크립트 상단에 전역으로 걸려있던 멀티스레딩 억제 변수(`OMP_NUM_THREADS=1` 등)를 제거하고, 오직 `pytest` 실행 라인에만 격리 적용되도록 수정. 프로덕션 환경의 고성능 멀티코어 리소스 병목을 원천 해소.
+  - **통합 검증**: `run_all_tests.sh` 기반 전체 시스템 E2E 테스트 통과 확인 후, `push_all.sh`를 통해 19개 모듈 일괄 원격 동기화 완수.
