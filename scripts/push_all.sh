@@ -9,6 +9,23 @@ REPOS=(
     "SG_integration_step1" "SG_integration_step2" "SG_integration_step3"
 )
 
+MISSING_REPOS=()
+for REPO in "${REPOS[@]}"; do
+    if [ ! -d "$BASE_DIR/$REPO" ]; then
+        MISSING_REPOS+=("$REPO")
+    fi
+done
+
+if [ ${#MISSING_REPOS[@]} -ne 0 ]; then
+    echo "🚨 CRITICAL ERROR: Workspace Integrity Check Failed"
+    echo "The following required modules are missing from the workspace:"
+    for M in "${MISSING_REPOS[@]}"; do
+        echo "- $M"
+    done
+    echo "Aborting push due to structural integrity failure."
+    exit 1
+fi
+
 for d in "${REPOS[@]}"; do
     cd "$BASE_DIR/$d" || continue
     

@@ -1,5 +1,5 @@
 # Repository E2E & Consistency Test Report
-Date: Sun Jul 19 02:19:11 KST 2026
+Date: Sun Jul 19 03:27:46 KST 2026
 
 ## SG_sys
 No tests found.
@@ -18,7 +18,7 @@ collected 3 items
 
 tests/test_engine.py ...                                                 [100%]
 
-============================== 3 passed in 2.30s ===============================
+============================== 3 passed in 2.78s ===============================
 ```
 **Status: PASSED :white_check_mark:**
 
@@ -49,7 +49,7 @@ deepdrop_sfe/perspective.py         58      7    88%   32, 52-54, 59-60, 142
 deepdrop_sfe/physics_engine.py     120     17    86%   59, 72, 82-83, 88, 149-153, 175-176, 186-189, 214
 --------------------------------------------------------------
 TOTAL                              475    283    40%
-============================== 17 passed in 6.62s ==============================
+============================== 17 passed in 6.63s ==============================
 ```
 **Status: PASSED :white_check_mark:**
 
@@ -79,7 +79,7 @@ collected 5 items
 
 tests/test_main.py .....                                                 [100%]
 
-============================== 5 passed in 0.80s ===============================
+============================== 5 passed in 0.84s ===============================
 ```
 **Status: PASSED :white_check_mark:**
 
@@ -95,7 +95,7 @@ collected 7 items
 tests/test_inference.py .....                                            [ 71%]
 tests/test_train.py ..                                                   [100%]
 
-============================== 7 passed in 1.44s ===============================
+============================== 7 passed in 1.35s ===============================
 ```
 **Status: PASSED :white_check_mark:**
 
@@ -110,7 +110,7 @@ collected 3 items
 
 tests/test_gpu_inference.py ...                                          [100%]
 
-============================== 3 passed in 5.20s ===============================
+============================== 3 passed in 5.38s ===============================
 ```
 **Status: PASSED :white_check_mark:**
 
@@ -126,7 +126,7 @@ collected 3 items
 tests/test_api.py ..                                                     [ 66%]
 tests/test_engine.py .                                                   [100%]
 
-============================== 3 passed in 0.94s ===============================
+============================== 3 passed in 0.92s ===============================
 ```
 **Status: PASSED :white_check_mark:**
 
@@ -159,7 +159,7 @@ tests/test_ir_simulator.py::test_optimize_mixture_ratios_backward_pass
     loader = DataLoader(data_list, batch_size=len(data_list), shuffle=False)
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-======================== 2 passed, 38 warnings in 9.30s ========================
+======================== 2 passed, 38 warnings in 6.53s ========================
 ```
 **Status: PASSED :white_check_mark:**
 
@@ -174,7 +174,7 @@ collected 2 items
 
 tests/test_main.py ..                                                    [100%]
 
-============================== 2 passed in 1.13s ===============================
+============================== 2 passed in 1.17s ===============================
 ```
 **Status: PASSED :white_check_mark:**
 
@@ -201,7 +201,7 @@ src/model.py         40     13    68%   15, 34-35, 39-47, 56, 58
 src/schemas.py        9      0   100%
 -----------------------------------------------
 TOTAL                59     13    78%
-============================== 5 passed in 0.28s ===============================
+============================== 5 passed in 0.29s ===============================
 ```
 **Status: PASSED :white_check_mark:**
 
@@ -231,7 +231,7 @@ collected 3 items
 
 tests/test_main.py ...                                                   [100%]
 
-============================== 3 passed in 0.19s ===============================
+============================== 3 passed in 0.18s ===============================
 ```
 **Status: PASSED :white_check_mark:**
 
@@ -288,7 +288,7 @@ collected 5 items
 tests/test_imports.py ..                                                 [ 40%]
 tests/test_integration.py ...                                            [100%]
 
-============================== 5 passed in 7.17s ===============================
+============================== 5 passed in 4.94s ===============================
 ```
 **Status: PASSED :white_check_mark:**
 
@@ -303,7 +303,7 @@ collected 1 item
 
 tests/test_dummy.py .                                                    [100%]
 
-============================== 1 passed in 0.07s ===============================
+============================== 1 passed in 0.06s ===============================
 ```
 **Status: PASSED :white_check_mark:**
 

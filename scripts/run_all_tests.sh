@@ -27,15 +27,28 @@ echo "# Repository E2E & Consistency Test Report" > "$REPORT_FILE"
 echo "Date: $(date)" >> "$REPORT_FILE"
 echo "" >> "$REPORT_FILE"
 
+MISSING_REPOS=()
+for REPO in "${REPOS[@]}"; do
+    if [ ! -d "$BASE_DIR/$REPO" ]; then
+        MISSING_REPOS+=("$REPO")
+    fi
+done
+
+if [ ${#MISSING_REPOS[@]} -ne 0 ]; then
+    echo "## 🚨 CRITICAL ERROR: Workspace Integrity Check Failed" >> "$REPORT_FILE"
+    echo "The following required modules are missing from the workspace:" >> "$REPORT_FILE"
+    for M in "${MISSING_REPOS[@]}"; do
+        echo "- $M" >> "$REPORT_FILE"
+    done
+    echo "" >> "$REPORT_FILE"
+    echo "**Status: FATAL ERROR (Missing Repositories) :x:**" >> "$REPORT_FILE"
+    echo "Aborting tests due to structural integrity failure."
+    exit 1
+fi
+
 for REPO in "${REPOS[@]}"; do
     echo "## $REPO" >> "$REPORT_FILE"
     echo "Running tests in $REPO..."
-    
-    if [ ! -d "$BASE_DIR/$REPO" ]; then
-        echo "Repository not found." >> "$REPORT_FILE"
-        echo "" >> "$REPORT_FILE"
-        continue
-    fi
     
     cd "$BASE_DIR/$REPO" || continue
     

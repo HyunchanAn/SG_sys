@@ -1,0 +1,5 @@
+
+# Security Rules Auto-Appended
+raw_data/
+*.db
+.env
