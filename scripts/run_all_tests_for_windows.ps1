@@ -1,7 +1,7 @@
 # PowerShell script for running tests on Windows
 $ErrorActionPreference = "Stop"
 
-$BASE_DIR = (Resolve-Path "..\..").Path
+$BASE_DIR = "\\macbookpro-hc\GitHub"
 $env:PYTHONPATH = "$BASE_DIR\SG_proj_001;$BASE_DIR\SG_proj_002;$BASE_DIR\SG_proj_003;$BASE_DIR\SG_proj_004;$BASE_DIR\SG_proj_005;$BASE_DIR\SG_proj_006;$BASE_DIR\SG_proj_007;$BASE_DIR\SG_proj_008;$BASE_DIR\SG_proj_009;$BASE_DIR\SG_proj_010;$BASE_DIR\SG_proj_011;$BASE_DIR\SG_proj_012;$BASE_DIR\SG_proj_013;$BASE_DIR\SG_proj_014;$BASE_DIR\SG_proj_015;$BASE_DIR\SG_sys;$env:PYTHONPATH"
 
 $REPOS = @(
@@ -42,6 +42,12 @@ if ($MISSING_REPOS.Count -ne 0) {
 Write-Host "Spinning up Root Orchestration (MSA PoC) for SG_proj_001 and SG_proj_004 on Windows..."
 Set-Location -Path "$BASE_DIR\SG_sys"
 docker-compose -f docker-compose-windows.yml up -d --build
+
+Write-Host "Waiting 10 seconds for PostgreSQL to initialize..."
+Start-Sleep -Seconds 10
+
+Write-Host "Restoring DB dump to sg_proj_004_db..."
+Get-Content -Path "$BASE_DIR\SG_DB\init_scripts\init.sql" -Raw | docker exec -i sg_proj_004_db psql -U sg_user -d sg_proj_004
 
 foreach ($REPO in $REPOS) {
     "## $REPO" | Out-File -FilePath $REPORT_FILE -Append
