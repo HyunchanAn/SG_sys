@@ -1,5 +1,5 @@
 # PowerShell script for running tests on Windows
-$ErrorActionPreference = "Stop"
+$ErrorActionPreference = "Continue"
 
 $BASE_DIR = "\\macbookpro-hc\GitHub"
 $env:PYTHONPATH = "$BASE_DIR\SG_proj_001;$BASE_DIR\SG_proj_002;$BASE_DIR\SG_proj_003;$BASE_DIR\SG_proj_004;$BASE_DIR\SG_proj_005;$BASE_DIR\SG_proj_006;$BASE_DIR\SG_proj_007;$BASE_DIR\SG_proj_008;$BASE_DIR\SG_proj_009;$BASE_DIR\SG_proj_010;$BASE_DIR\SG_proj_011;$BASE_DIR\SG_proj_012;$BASE_DIR\SG_proj_013;$BASE_DIR\SG_proj_014;$BASE_DIR\SG_proj_015;$BASE_DIR\SG_sys;$env:PYTHONPATH"
@@ -43,9 +43,8 @@ Write-Host "Spinning up Root Orchestration (MSA PoC) for SG_proj_001 and SG_proj
 Set-Location -Path "$BASE_DIR\SG_sys"
 docker-compose -f docker-compose-windows.yml up -d --build
 
-Write-Host "Waiting 10 seconds for PostgreSQL to initialize..."
-Start-Sleep -Seconds 10
-
+Write-Host "Waiting 15 seconds for DB to initialize..."
+Start-Sleep -Seconds 15
 Write-Host "Restoring DB dump to sg_proj_004_db..."
 Get-Content -Path "$BASE_DIR\SG_DB\init_scripts\init.sql" -Raw | docker exec -i sg_proj_004_db psql -U sg_user -d sg_proj_004
 
@@ -89,10 +88,11 @@ foreach ($REPO in $REPOS) {
     } else {
         $TEST_FILES = Get-ChildItem -Path . -Recurse -Depth 1 -Filter "test_*.py"
         if ($TEST_FILES) {
+            $FILE_NAMES = $TEST_FILES.Name -join ' '
             if ($IS_DOCKER) {
-                Invoke-Expression "$EXEC_CMD $($TEST_FILES.Name)" | Out-File -FilePath "test_out.log"
+                Invoke-Expression "$EXEC_CMD $FILE_NAMES" | Out-File -FilePath "test_out.log"
             } else {
-                python -m pytest $($TEST_FILES.Name) 2>&1 | Out-File -FilePath "test_out.log"
+                Invoke-Expression "python -m pytest $FILE_NAMES" 2>&1 | Out-File -FilePath "test_out.log"
             }
             $EXIT_CODE = $LASTEXITCODE
             
