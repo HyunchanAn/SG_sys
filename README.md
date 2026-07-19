@@ -46,3 +46,6 @@ cd scripts
 
 > [!WARNING]
 > 본 레포지토리의 스크립트들은 `~/Documents/GitHub` 하위의 모든 레포지토리에 전역적인 영향을 미칩니다. 스크립트 수정 시 사이드 이펙트에 주의하십시오.
+
+---
+*Last Updated: 2026-07-19 (Hybrid Environment & MSA Integration)*
