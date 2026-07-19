@@ -37,3 +37,9 @@
 - **통합 검증 완료**
   - 도커 컨테이너 빌드(`LightGBM` C 라이브러리 및 `asyncpg` 등 누락 의존성 해결) 후, 18개 모듈 전 구간의 `run_all_tests.sh`를 100% 에러 없이 통과 확인. 
   - 검증 완료된 모든 패치 내역을 `push_all.sh` 스크립트를 통해 GitHub 원격 저장소에 일괄 반영 완료.
+
+- **공통 API 스키마 통합 (Schema Unification)**
+  - 마이크로서비스 간 Type Mismatch 방지를 위해 분산된 Pydantic 모델을 `SG_sys/shared_schemas` 공통 라이브러리로 추출 및 통합.
+  - `docker-compose.yml`의 빌드 컨텍스트를 상향 조정(`context: ..`)하여 각 컨테이너(001, 004 등) 내부에 공통 스키마 라이브러리 주입 파이프라인 구축.
+  - 로컬 맥북 환경의 빌드 병목 해소를 위해 15개 모듈 전체 리빌딩 및 대규모 CI 구동 역할은 Windows 메인 워크스테이션(마스터 노드)으로 Offload 하도록 아키텍처 역할 분담.
+

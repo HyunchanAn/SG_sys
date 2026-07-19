@@ -34,7 +34,8 @@ services:
 
   sg_proj_004_api:
     build:
-      context: ../SG_proj_004
+      context: ..
+      dockerfile: SG_proj_004/Dockerfile
     container_name: sg_proj_004_api
     environment:
       DATABASE_URL: "postgresql://${POSTGRES_USER:-sg_user}:${POSTGRES_PASSWORD:-sg_password}@sg_proj_004_db:5432/${POSTGRES_DB:-sg_proj_004}"
@@ -50,7 +51,8 @@ services:
 
   sg_proj_001_api:
     build:
-      context: ../SG_proj_001
+      context: ..
+      dockerfile: SG_proj_001/Dockerfile
       target: runtime
     container_name: sg_proj_001_api
     ports:
