@@ -1,0 +1,82 @@
+version: '3.8'
+
+networks:
+  sg_network:
+    driver: bridge
+
+services:
+  sg_proj_004_db:
+    image: postgres:15-alpine
+    container_name: sg_proj_004_db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-sg_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sg_password}
+      POSTGRES_DB: ${POSTGRES_DB:-sg_proj_004}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data_vol:/var/lib/postgresql/data
+      - ../SG_DB/init_scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - sg_network
+    restart: unless-stopped
+
+  sg_proj_004_qdrant:
+    image: qdrant/qdrant:latest
+    container_name: sg_proj_004_qdrant
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    networks:
+      - sg_network
+    restart: unless-stopped
+
+  sg_proj_004_api:
+    build:
+      context: ..
+      dockerfile: SG_proj_004/Dockerfile
+    container_name: sg_proj_004_api
+    environment:
+      DATABASE_URL: "postgresql://${POSTGRES_USER:-sg_user}:${POSTGRES_PASSWORD:-sg_password}@sg_proj_004_db:5432/${POSTGRES_DB:-sg_proj_004}"
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      HUGGINGFACE_API_KEY: ${HUGGINGFACE_API_KEY:-}
+    ports:
+      - "8004:8000"
+    networks:
+      - sg_network
+    depends_on:
+      - sg_proj_004_db
+      - sg_proj_004_qdrant
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+  sg_proj_001_api:
+    build:
+      context: ..
+      dockerfile: SG_proj_001/Dockerfile
+      target: runtime
+    container_name: sg_proj_001_api
+    ports:
+      - "8001:8001"
+    networks:
+      - sg_network
+    depends_on:
+      - sg_proj_004_api
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+volumes:
+  qdrant_data:
+  postgres_data_vol:
