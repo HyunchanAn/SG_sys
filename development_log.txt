@@ -43,3 +43,40 @@
   - `docker-compose.yml`의 빌드 컨텍스트를 상향 조정(`context: ..`)하여 각 컨테이너(001, 004 등) 내부에 공통 스키마 라이브러리 주입 파이프라인 구축.
   - 로컬 맥북 환경의 빌드 병목 해소를 위해 15개 모듈 전체 리빌딩 및 대규모 CI 구동 역할은 Windows 메인 워크스테이션(마스터 노드)으로 Offload 하도록 아키텍처 역할 분담.
 
+## [2026-07-21]
+- **Step 3 역설계 파이프라인 벤치마크 수행**
+  - PostgreSQL(`SG_proj_004` 실 DB)에 적재된 `adhesive_recipes`의 목표 물성(점착력, 점도 등) 및 배합 정답지를 활용하여 300회 반복 벤치마크 테스트 스크립트 작성 및 수행 (`temp_test_scripts/test_reverse_engineering.py`).
+  - 테스트 결과(모노머 90% 이상 일치 4.67%, 50% 이상 일치 7.00%, 성분 비율 코사인 유사도 38.38%)를 분석하여 `reports_archive/260721_1246_reverse_engineering_benchmark.md` 보고서로 발행.
+  - 최적화 알고리즘의 한계점(Sparsity 제약으로 인한 다종 모노머 배합 추론 한계)을 식별하고, 완벽한 재현보다는 타겟 물성 달성을 위한 '대안적 배합(Alternative Recipe)' 제시 및 향후 CVAE 기반 Inverse Design 모델 도입 필요성을 제언함.
+  - 테스트 후 잔여 일회용 폴더(`temp_test_scripts/`) 정리 완료.
+
+- **데이터베이스 계층 구조 개편 및 역설계 엔진 동적 탐색 상한선 적용 벤치마크 수행 (V2)**
+  - 기존 평면 JSON 형태의 `formula_data`를 `monomers`, `additives`, `properties` 계층으로 구조적 분리하는 DB 마이그레이션 스크립트 작성 및 반영 완료.
+  - 이를 기반으로 `SG_proj_001`의 최적화 엔진(DE, NSGA-2)에서 각 성분의 과거 실제 분포율 통계를 바탕으로 동적 탐색 상한선(Bounds)을 차등 적용하여 300회 벤치마크 재수행 (`temp_test_scripts/test_reverse_engineering_v2.py`).
+  - 결과(모노머 90% 일치 4.67%, 50% 일치 7.67%, 코사인 유사도 38.98%) 산출 후 `reports_archive/260721_1336_reverse_engineering_benchmark.md` 보고서 발행 및 임시 디렉토리 소거.
+  - Bounds 최적화를 통해 불필요한 과소/과대 추론이 제거되었으며, 현실적이고 안정적인 유사도를 보여준 것으로 확인됨.
+
+- **분리형 희소성 제약 (Separated Sparsity) 아키텍처 도입 및 최적 파라미터 탐색**
+  - 기존 통합 4개 마스킹 제약을 `max_monomers`와 `max_additives`로 분리하는 `enforce_separated_sparsity` 메서드를 `engine.py`에 신규 구현.
+  - 모노머 3/4개, 첨가제 1/2개의 4가지 조합(총합 4~6개)에 대해 각 50회 벤치마크 테스트 수행.
+  - 모노머 3개 + 첨가제 1/2개 조합이 평균 배합 코사인 유사도(약 46%) 측면에서 가장 우수함을 확인. 총 성분이 6개로 늘어나면 50% 이상 컴포넌트 일치율은 오르나 오버피팅으로 유사도가 떨어지는 트레이드오프 확인.
+  - 관련 보고서: `reports_archive/260721_1407_separated_sparsity_benchmark.md` 발행 완료.
+
+- Forward-Reverse 왕복 파이프라인 벤치마크 수행 (100회)
+  - 모노머 3개 + 첨가제 1개 제약 조건 하에, DB 원본 배합비를 기반으로 물성을 우선 예측(Forward)하고, 이 예측 물성을 목표로 다시 역설계(Reverse)하는 2-Phase 벤치마크 수행.
+  - Forward 예측 MAE: 점착력 142.55 gf/25mm, 점도 3089.08 cP, Tg 16.03°C
+  - Reverse 역설계 결과: 모노머 50% 일치율 25.0%, 배합 코사인 유사도 38.09% 
+  - Forward 단계의 에러 전파(Error Propagation)로 인해 일치율 하락 및 연산 병목 현상이 있었으나, 유사도 38% 선 방어에 성공하며 동일 기능성 확보 경로를 제시함.
+  - 관련 보고서: `reports_archive/260721_1525_forward_and_reverse_benchmark.md` 발행 완료 및 임시 스크립트 삭제.
+
+## [2026-07-24]
+- **데이터 누수(Data Leakage) 차단 및 Meta 모델 무결성 확보**
+  - 기존 모델 훈련 과정에서 `test_점착력` 등의 타겟 데이터가 훈련 피처에 포함되는 누수 문제를 식별 및 수정.
+  - 누수가 차단된 Base 모델 3종(Tg, Viscosity, Adhesion)의 OOF 예측값을 바탕으로 53차원의 신규 Meta Feature를 구축하고 Meta 모델(`model_meta.pkl`)을 강제 재학습하여 시스템 무결성(System Integrity) 회복 완료.
+- **ONNX 포맷 마이그레이션 및 Core Engine 아키텍처 업데이트**
+  - 4종의 `.pkl` 모델을 운영 환경 텐서 규격에 맞게 `.onnx` 포맷으로 일괄 변환 (`convert_to_onnx.py`). (XGBoost 내부 피처 이름 충돌 회피 적용)
+  - `SG_proj_001`의 `sg_polysim/engine.py`를 개선하여 Hugging Face 클라우드 모델 다운로드에 의존하던 단일 경로에 `LOCAL_MODELS_DIR` 우선 로드 분기(Fallback)를 비파괴적으로 설계 및 적용.
+  - Meta 모델 인퍼런스 시 `x_base` 차원 매칭 오류(Expected 53차원)를 유발하던 하드코딩 버그를 수정하여 데이터 흐름 동기화 완료.
+- **End-to-End 예측 엔진 검증 완료 및 차후 계획 수립**
+  - 가상 화학 레시피들에 대해 수정된 `RecipeOptimizer` 엔진 추론을 검증하여, 타겟값 누수 없이 순수한 배합비 기반으로 각 레시피마다 동적이고 타당한 3종 물성치(Tg, cP, Adhesion)가 도출됨을 확인.
+  - 관련 통합 보고서 및 향후 고도화 계획(HF 모델 갱신, 벤치마크 재수행 등)을 `SG_sys/260724_0040_onnx_migration_and_next_plan.md`로 발행 완료.

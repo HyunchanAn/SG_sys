@@ -1,0 +1,18 @@
+version: '3.2.0'
+autonomy:
+  scale: standard
+  active_packet:
+    id: packet-260723-onnx-engine
+    type: architectural_update
+    status: IN_PROGRESS
+    description: "Convert models to ONNX, train meta model, and update engine.py for local model loading."
+    expires_when: "Goal execution completes"
+
+authorizations:
+  - id: auth-260723-engine-modification
+    decision: "APPROVED"
+    authorized_action: "Install pip packages, overwrite ONNX models locally, and modify sg_polysim/engine.py architecture"
+    packet: packet-260723-onnx-engine
+    conditions: "Must maintain system completeness and integrity (retrain meta model instead of hybrid load)."
+    expires_when: "Goal execution completes"
+    evidence_required_before_action: "Review implementation_plan.md and confirm integrity requirement"
