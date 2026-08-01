@@ -7,7 +7,7 @@ source /opt/homebrew/Caskroom/miniconda/base/bin/activate base
 export KMP_DUPLICATE_LIB_OK=TRUE
 
 BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-export PYTHONPATH="$BASE_DIR/SG_proj_001:$BASE_DIR/SG_proj_002:$BASE_DIR/SG_proj_003:$BASE_DIR/SG_proj_004:$BASE_DIR/SG_proj_005:$BASE_DIR/SG_proj_006:$BASE_DIR/SG_proj_007:$BASE_DIR/SG_proj_008:$BASE_DIR/SG_proj_009:$BASE_DIR/SG_proj_010:$BASE_DIR/SG_proj_011:$BASE_DIR/SG_proj_012:$BASE_DIR/SG_proj_013:$BASE_DIR/SG_proj_014:$BASE_DIR/SG_proj_015:$BASE_DIR/SG_sys:$PYTHONPATH"
+export PYTHONPATH="$BASE_DIR/SG_proj_001:$BASE_DIR/SG_proj_002:$BASE_DIR/SG_proj_003:$BASE_DIR/SG_proj_004:$BASE_DIR/SG_proj_005:$BASE_DIR/SG_proj_006:$BASE_DIR/SG_proj_007:$BASE_DIR/SG_proj_008:$BASE_DIR/SG_proj_009:$BASE_DIR/SG_proj_010:$BASE_DIR/SG_proj_011:$BASE_DIR/SG_proj_012:$BASE_DIR/SG_proj_013:$BASE_DIR/SG_proj_014:$BASE_DIR/SG_proj_015:$BASE_DIR/SG_sys:$BASE_DIR/SG_sys/shared_schemas:$PYTHONPATH"
 
 REPOS=(
     "SG_sys" "SG_DB"
