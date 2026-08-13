@@ -8,4 +8,4 @@ class OptimizeRequest(BaseModel):
 class OptimizeResponse(BaseModel):
     recipe: dict
     predicted_properties: dict
-    selection_source: str | None = Field(default=None, description="nsga2 | de_fallback_penalty | de_fallback_timeout | de")
+    selection_source: str | None = Field(default=None, description="nsga2 | de_fallback_penalty | de_fallback_error | de")
