@@ -4,6 +4,7 @@ class OptimizeRequest(BaseModel):
     target_properties: dict = Field(..., description="Target properties e.g., {'측정_값': 1200.0, 'Tg': -20.0}")
     fixed_context: dict = Field(default_factory=dict, description="Fixed context e.g. temperature, metal surface")
     initial_recipe: dict | None = Field(default=None, description="Optional initial recipe for warm-start in DE")
+    local_search_step: int | None = Field(default=None, description="Step indicating neighborhood search radius schedule in DE")
 
 class OptimizeResponse(BaseModel):
     recipe: dict
