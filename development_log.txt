@@ -96,3 +96,9 @@
   - Data Leakage가 차단된 정직한 예측 엔진을 기반으로 NSGA-II 다목적 최적화(역설계)를 300회 E2E 구동하는 벤치마크 수행.
   - 유효 데이터 78건에 대해 성공적으로 배합을 역탐색하였으며, 가장 우수한 성적을 거둔 Top 3 배합에 대해 `현장 생산 엑셀 폼`을 모사한 마크다운 기반의 `가상 작업지시서(Virtual Work Order)` 자동 생성 기능까지 구현 및 실증 완료.
   - `015` 프론트엔드 모듈에 '도포 두께' 및 '경화제 비율' 슬라이더를 추가하여 사용자 직관성을 높임.
+
+- 2026-08-13 16:26 NSGA-II V3 최적화 엔진 통합 (SG_proj_001, SG_proj_014)
+  - SG_proj_001에 /optimize_smart 엔드포인트를 신설하여 1회차 탐색을 위한 NSGA-II 파이프라인 구현 완료.
+  - Domain Filter -> L2 Norm -> Cost Tie-break 순서의 Selection Policy를 도입하여 안정적인 단일 해 반환.
+  - SG_proj_014에서 루프 1회차에는 NSGA-II를, 이후에는 DE Warm-start(initial_recipe)를 호출하도록 분기 처리하여 엔진과 오케스트레이터 간 무상태(Stateless) 계약 유지.
+  - Latency 테스트 결과 p95 2.74초를 달성하여 5초 상한 기준 만족 및 E2E 테스트 검증 완료.
