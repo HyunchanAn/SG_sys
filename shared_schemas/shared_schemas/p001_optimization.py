@@ -6,6 +6,7 @@ class OptimizeRequest(BaseModel):
     initial_recipe: dict | None = Field(default=None, description="Optional initial recipe for warm-start in DE")
     local_search_step: int | None = Field(default=None, description="Step indicating neighborhood search radius schedule in DE")
     target_weights: dict | None = Field(default=None, description="Optional weights for L2 optimization")
+    use_property_bounds: bool = Field(default=True, description="Whether to apply property bounds penalty")
 
 class OptimizeResponse(BaseModel):
     recipe: dict
