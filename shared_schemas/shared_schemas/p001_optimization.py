@@ -5,6 +5,7 @@ class OptimizeRequest(BaseModel):
     fixed_context: dict = Field(default_factory=dict, description="Fixed context e.g. temperature, metal surface")
     initial_recipe: dict | None = Field(default=None, description="Optional initial recipe for warm-start in DE")
     local_search_step: int | None = Field(default=None, description="Step indicating neighborhood search radius schedule in DE")
+    target_weights: dict | None = Field(default=None, description="Optional weights for L2 optimization")
 
 class OptimizeResponse(BaseModel):
     recipe: dict
