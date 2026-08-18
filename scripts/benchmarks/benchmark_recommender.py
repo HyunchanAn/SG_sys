@@ -8,7 +8,8 @@ from sqlalchemy import create_engine
 BASE_DIR = "/Users/hyunchanan/Documents/GitHub"
 sys.path.append(os.path.join(BASE_DIR, "SG_proj_012"))
 
-from src.core.matcher import MatchingRule, calculate_score
+from src.core.matcher import MatchingRule
+from src.core.mcda import calculate_topsis_scores
 
 class DummyMatchingRequest:
     def __init__(self, se: float, r: float, proc: int, finish: str):
@@ -62,11 +63,29 @@ def main():
         req = DummyMatchingRequest(test_se, test_rough, 5, rule.finish_type)
         
         # Calculate scores
-        results = []
+        candidates_to_evaluate = []
         for r in rules:
-            score, _ = calculate_score(req, r)
-            if score > 0:
-                results.append((score, r.code))
+            if r.processability_level <= req.required_processability_level:
+                candidates_to_evaluate.append({
+                    "id": r.code,
+                    "se": r.surface_energy,
+                    "rough": r.roughness,
+                    "proc": r.processability_level,
+                    "finish": r.finish_type
+                })
+                
+        scored_candidates = calculate_topsis_scores(
+            req_se=req.surface_energy,
+            req_rough=req.roughness,
+            req_proc=req.required_processability_level,
+            req_finish=req.finish_type,
+            candidates=candidates_to_evaluate
+        )
+        
+        results = []
+        for c in scored_candidates:
+            if c["topsis_score"] > 0:
+                results.append((c["topsis_score"], c["id"]))
                 
         # Sort by score desc
         results.sort(key=lambda x: x[0], reverse=True)
