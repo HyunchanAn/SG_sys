@@ -9,6 +9,8 @@ class OptimizeRequest(BaseModel):
     use_property_bounds: bool = Field(default=True, description="Whether to apply property bounds penalty")
     use_ood_penalty: bool = Field(default=True, description="Whether to apply OOD penalty")
     deep_search: bool = Field(default=False, description="Flag for asynchronous deep search mode with larger pop_size and n_gen")
+    thickness: float = Field(default=30.0, description="Coating thickness in um")
+    crosslinker_ratio: float = Field(default=1.0, description="Hardener ratio in %")
 
 class OptimizeResponse(BaseModel):
     recipe: dict
